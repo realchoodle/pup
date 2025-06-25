@@ -1,0 +1,41 @@
+#!/bin/bash
+
+read -p "pup: Have you checked for problematic updates? [y/N]: " informed
+
+# Colors for pup status messages
+grn="\[\033[0;32m\]"
+red="\[\033[0;31m\]"
+res="\[\033[0m\]" # reset colors
+
+# Status messages
+pup_ok=$(printf "%s" "${grn}pup:${res}")
+pup_bad=$(printf "%s" "${red}pup:${res}")
+
+# get it ??? pup ??? vet ??? checkup ??? i am a genius.
+function _vet {
+  local upd_msg=$(echo "Updating packages with \'${@}\'...")
+
+  echo "${pup_ok} ${upd_msg}"
+  "${@}"
+
+  # Error handling
+  local exit_status=${?}
+  [[ ${exit_status} == 0 ]] ||
+    (echo "${pup_bad} \'${@}\' failed with exit status \'${exit_status}\'." &&
+    exit 1)
+}
+
+# Main program
+case ${informed} in
+  "y"|"Y"|"sure did"|"yup") 
+    paru_arr=(paru -Syu --noconfirm)
+    fp_arr=(flatpak update --user --assumeyes)
+    _vet "${paru_arr[@]}"
+    _vet "${fp_arr[@]}"
+    exit 0
+    ;;
+  *)
+    echo "${pup_ok} No packages were updated. Read the news! >:c"
+    exit 0
+    ;;
+esac
