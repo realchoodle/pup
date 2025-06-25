@@ -8,3 +8,8 @@ unnecessarily robust Bash script to see what I could learn.
 ## That's stupid.
 
 Mean :c
+
+## To-Do
+
+- [ ] Add support for other package managers.
+- [ ] Check to see if package managers exist before running them.
