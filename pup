@@ -3,12 +3,14 @@
 
 # Colors for pup status messages
 grn="\033[0;32m"
+ylw="\033[0;33m"
 red="\033[0;31m"
 res="\033[0m" # reset colors
 
 # Status messages
 pup_ok=$(printf "%b" "${grn}pup:${res}")
 pup_bad=$(printf "%b" "${red}pup:${res}")
+pup_wrn=$(printf "%b" "${ylw}pup:${res}")
 
 read -p "${pup_ok} Have you checked for problematic updates? [y/N]: " informed
 
@@ -36,7 +38,7 @@ case ${informed} in
     exit 0
     ;;
   *)
-    echo "${pup_ok} No packages were updated. Read the news! >:c"
+    echo "${pup_wrn} No packages were updated. Read the news! >:c"
     exit 0
     ;;
 esac
