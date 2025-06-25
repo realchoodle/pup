@@ -35,6 +35,7 @@ case ${informed} in
 
     _vet "${paru_arr[@]}"
     _vet "${fp_arr[@]}"
+    echo "${pup_ok} Done! :D"
 
     exit 0
     ;;
