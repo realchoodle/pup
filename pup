@@ -1,19 +1,20 @@
 #!/bin/bash
 
-read -p "pup: Have you checked for problematic updates? [y/N]: " informed
 
 # Colors for pup status messages
-grn="\[\033[0;32m\]"
-red="\[\033[0;31m\]"
-res="\[\033[0m\]" # reset colors
+grn="\033[0;32m"
+red="\033[0;31m"
+res="\033[0m" # reset colors
 
 # Status messages
-pup_ok=$(printf "%s" "${grn}pup:${res}")
-pup_bad=$(printf "%s" "${red}pup:${res}")
+pup_ok=$(printf "%b" "${grn}pup:${res}")
+pup_bad=$(printf "%b" "${red}pup:${res}")
+
+read -p "${pup_ok} Have you checked for problematic updates? [y/N]: " informed
 
 # get it ??? pup ??? vet ??? checkup ??? i am a genius.
 function _vet {
-  local upd_msg=$(echo "Updating packages with \'${@}\'...")
+  local upd_msg=$(echo "Updating packages with '${@}'...")
 
   echo "${pup_ok} ${upd_msg}"
   "${@}"
@@ -21,7 +22,7 @@ function _vet {
   # Error handling
   local exit_status=${?}
   [[ ${exit_status} == 0 ]] ||
-    (echo "${pup_bad} \'${@}\' failed with exit status \'${exit_status}\'." &&
+    (echo "${pup_bad} '${@}' failed with exit status '${exit_status}'." &&
     exit 1)
 }
 
