@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Colors for pup status messages
 grn="\033[0;32m"
 ylw="\033[0;33m"
@@ -33,12 +32,15 @@ case ${informed} in
   "y"|"Y"|"sure did"|"yup") 
     paru_arr=(paru -Syu --noconfirm)
     fp_arr=(flatpak update --user --assumeyes)
+
     _vet "${paru_arr[@]}"
     _vet "${fp_arr[@]}"
+
     exit 0
     ;;
   *)
     echo "${pup_wrn} No packages were updated. Read the news! >:c"
+
     exit 0
     ;;
 esac
