@@ -41,6 +41,8 @@ case ${informed} in
     ;;
   *)
     echo "${pup_wrn} No packages were updated. Read the news! >:c"
+    echo ""
+    paru -Pww
 
     exit 0
     ;;
