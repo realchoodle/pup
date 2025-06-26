@@ -42,7 +42,7 @@ case ${informed} in
   *)
     echo "${pup_wrn} No packages were updated. Read the news! >:c"
     echo ""
-    paru -Pww
+    paru -Pw
 
     exit 0
     ;;
