@@ -15,7 +15,7 @@ read -p "${pup_ok} Have you checked for problematic updates? [y/N]: " informed
 
 # get it ??? pup ??? vet ??? checkup ??? i am a genius.
 function _vet {
-  local upd_msg=$(echo "Updating packages with '${@}'...")
+  local upd_msg=$(echo "Updating packages with '${@}'…")
 
   echo "${pup_ok} ${upd_msg}"
   "${@}"
