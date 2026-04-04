@@ -11,19 +11,20 @@ pup_bad=$(printf "%b" "${red}pup:${res}")
 pup_wrn=$(printf "%b" "${ylw}pup:${res}")
 
 today="$(date +%A)"
-update_day="Friday"
+update_days=(Friday Wednesday)
 
-if [[ "${today}" == "${update_day}" || "$1" == "--force" ]]; then
-    read -rp "${pup_ok} Have you checked for problematic updates? [y/N] " informed
-else
-    echo "${pup_bad} Update day is set to ${update_day}!"
-    exit 1
-fi
-
+for day in "${update_days[@]}"; do
+    if [[ "$today" == "$day" ]]; then
+        read -rp "${pup_ok} Have you checked for problematic updates? [y/N] " informed
+    else
+        printf "%s %s %s\n" "${pup_bad}" "Update days are set to:" "${update_days[*]}"
+        exit 1
+    fi
+done 
 
 function _vet {
     local upd_msg
-    upd_msg=$(printf "%s %s " "Updating packages with:" "${@}")
+    upd_msg=$(printf "%s %s\n" "Updating packages with:" "${@}")
 
     echo "${pup_ok} ${upd_msg}"
     "${@}"
@@ -31,7 +32,7 @@ function _vet {
     # Error handling
     local exit_status=${?}
     [[ ${exit_status} == 0 ]] ||
-        (printf "%s %s %s " "${pup_bad}" "${@}" "failed with exit status ${exit_status}." &&
+        (printf "%s %s %s\n" "${pup_bad}" "${@}" "failed with exit status ${exit_status}." &&
         exit 1)
 }
 
@@ -39,7 +40,7 @@ function _vet {
 case ${informed} in
     "y"|"Y"|"sure did"|"yup"|"yes"|"Yes"|"you're not my dad bro") 
         paru_arr=(paru -Syyuu)
-        fp_arr=(flatpak update --user)
+        fp_arr=(flatpak update --user --assumeyes)
         tldr_arr=(tldr --update)
         _vet "${paru_arr[@]}"
         _vet "${fp_arr[@]}"
