@@ -11,47 +11,53 @@ pup_bad=$(printf "%b" "${red}pup:${res}")
 pup_wrn=$(printf "%b" "${ylw}pup:${res}")
 
 today="$(date +%A)"
-update_days=(Friday Wednesday)
+update_days=("Friday" "Wednesday")
+is_update_day=false
 
 for day in "${update_days[@]}"; do
     if [[ "$today" == "$day" ]]; then
-        read -rp "${pup_ok} Have you checked for problematic updates? [y/N] " informed
-    else
-        printf "%s %s %s\n" "${pup_bad}" "Update days are set to:" "${update_days[*]}"
-        exit 1
+        is_update_day=true
+        break
     fi
 done 
 
+if [[ "$is_update_day" == "true" ]]; then
+    read -rp "${pup_ok} Have you checked for problematic updates? [y/N] " informed
+else
+    printf "%s %s %s\n" "${pup_bad}" "Update days are set to:" "${update_days[*]}"
+    exit 1
+fi
+
 function _vet {
+    local cmd=("$@")
+    local cmd_str="${cmd[*]}"
     local upd_msg
-    upd_msg=$(printf "%s %s\n" "Updating packages with:" "${*}")
+    upd_msg=$(printf "%s %s\n" "Updating packages with:" "${cmd_str}")
 
     echo "${pup_ok} ${upd_msg}"
-    # This runs each argument
-    "${@}"
+    # This runs each argument passed to this function
+    "${cmd[@]}"
 
     # Error handling
     local exit_status=${?}
-    [[ ${exit_status} == 0 ]] ||
-        (printf "%s %s %s\n" "${pup_bad}" "${*}" "failed with exit status ${exit_status}." &&
-        exit 1)
+    if [[ ${exit_status} -ne 0 ]]; then
+        printf "%s %s %s\n" "${pup_bad}" "${cmd_str}" "failed with exit status ${exit_status}."
+        exit 1
+    fi
 }
 
 # Main program
-case ${informed} in
-    "y"|"Y"|"sure did"|"yup"|"yes"|"Yes"|"you're not my dad bro") 
-        paru_arr=(paru -Syyuu)
-        fp_arr=(flatpak update --user --assumeyes)
-        tldr_arr=(tldr --update)
-        _vet "${paru_arr[@]}"
-        _vet "${fp_arr[@]}"
-        _vet "${tldr_arr[@]}"
+case ${informed,,} in # ${var,,} converts the variable to lowercase
+    "y"|"yup"|"yes") 
+        _vet paru -Syu
+        _vet flatpak update --user --assumeyes
+        _vet tldr --update
         echo "${pup_ok} Done! :D"
         exit 0
         ;;
     *)
         echo "${pup_wrn} No packages were updated. Read the news!"
-        echo "${pup_wrn} Fetching news…"
+        echo "${pup_wrn} Fetching news..."
         paru -Pw
         exit 0
         ;;
