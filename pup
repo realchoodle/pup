@@ -24,15 +24,16 @@ done
 
 function _vet {
     local upd_msg
-    upd_msg=$(printf "%s %s\n" "Updating packages with:" "${@}")
+    upd_msg=$(printf "%s %s\n" "Updating packages with:" "${*}")
 
     echo "${pup_ok} ${upd_msg}"
+    # This runs each argument
     "${@}"
 
     # Error handling
     local exit_status=${?}
     [[ ${exit_status} == 0 ]] ||
-        (printf "%s %s %s\n" "${pup_bad}" "${@}" "failed with exit status ${exit_status}." &&
+        (printf "%s %s %s\n" "${pup_bad}" "${*}" "failed with exit status ${exit_status}." &&
         exit 1)
 }
 
