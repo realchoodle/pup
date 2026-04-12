@@ -6,7 +6,7 @@ bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 
 today="${ date +%A; }"
 upd_days=("Friday" "Wednesday")
-is_upd_day=false
+is_upd_day="false"
 
 for day in "${upd_days[@]}"; do
 [[ "$today" == "$day" ]] && is_upd_day=true; break
@@ -25,7 +25,7 @@ vet() {
     echo "Updating packages with: ${cmd[*]}"
     "${cmd[@]}" # Runs each argument passed to this function
 
-    local exit_status=${?}
+    local exit_status="${?}"
     if [[ ${exit_status} -ne 0 ]]; then
         echo "${bad} ${cmd[*]} failed with exit status ${exit_status}."
         exit 1
