@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
 
-# Colors for pup status messages
-grn="\033[0;32m"
-ylw="\033[0;33m"
-red="\033[0;31m"
-res="\033[0m" # reset color
-
-pup_ok=$(printf "%b" "${grn}pup:${res}")
-pup_bad=$(printf "%b" "${red}pup:${res}")
-pup_wrn=$(printf "%b" "${ylw}pup:${res}")
+ok=${ printf "\033[0;32m%b\033[0m" "pup:"; }
+warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
+bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 
 today="$(date +%A)"
 update_days=("Friday" "Wednesday")
@@ -21,10 +15,10 @@ for day in "${update_days[@]}"; do
     fi
 done 
 
-if [[ "$is_update_day" == "true" ]]; then
-    read -rp "${pup_ok} Have you checked for problematic updates? [y/N] " informed
+if [[ "$is_update_day" == "true" || "$1" == "--force" ]]; then
+    read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
 else
-    printf "%s %s %s\n" "${pup_bad}" "Update days are set to:" "${update_days[*]}"
+    printf "%s %s %s\n" "${bad}" "Update days are set to:" "${update_days[*]}"
     exit 1
 fi
 
@@ -34,14 +28,14 @@ function _vet {
     local upd_msg
     upd_msg=$(printf "%s %s\n" "Updating packages with:" "${cmd_str}")
 
-    echo "${pup_ok} ${upd_msg}"
+    echo "${ok} ${upd_msg}"
     # This runs each argument passed to this function
     "${cmd[@]}"
 
     # Error handling
     local exit_status=${?}
     if [[ ${exit_status} -ne 0 ]]; then
-        printf "%s %s %s\n" "${pup_bad}" "${cmd_str}" "failed with exit status ${exit_status}."
+        printf "%s %s %s\n" "${bad}" "${cmd_str}" "failed with exit status ${exit_status}."
         exit 1
     fi
 }
@@ -52,12 +46,12 @@ case ${informed,,} in # ${var,,} converts the variable to lowercase
         _vet paru -Syu
         _vet flatpak update --user --assumeyes
         _vet tldr --update
-        echo "${pup_ok} Done! :D"
+        echo "${ok} Done! :D"
         exit 0
         ;;
     *)
-        echo "${pup_wrn} No packages were updated. Read the news!"
-        echo "${pup_wrn} Fetching news..."
+        echo "${warn} No packages were updated. Read the news!"
+        echo "${warn} Fetching news..."
         paru -Pw
         exit 0
         ;;
