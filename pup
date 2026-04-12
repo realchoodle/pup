@@ -30,7 +30,7 @@ vet() {
         echo "${bad} ${cmd[0]} is not installed."
     fi
 
-    echo "Updating packages with: ${cmd[*]}"
+    echo "${ok} Updating packages with: ${cmd[*]}"
     "${cmd[@]}" # Runs each argument passed to this function
 
     local exit_status="${?}"
