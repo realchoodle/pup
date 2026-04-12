@@ -37,7 +37,9 @@ case ${informed,,} in # ${var,,} converts the variable to lowercase
         vet paru -Syu
         vet flatpak update --user --assumeyes
         vet tldr --update
-        echo "${ok} Done! :D"
+        echo "${ok} Done!"
+        [[ -n $(command -v notify-send) ]] \
+            && notify-send "pup" "Updates complete!"
         exit 0
         ;;
     *)
