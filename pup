@@ -5,44 +5,38 @@ warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 
 today="${ date +%A; }"
-update_days=("Friday" "Wednesday")
-is_update_day=false
+upd_days=("Friday" "Wednesday")
+is_upd_day=false
 
-for day in "${update_days[@]}"; do
-[[ "$today" == "$day" ]] && is_update_day=true; break
+for day in "${upd_days[@]}"; do
+[[ "$today" == "$day" ]] && is_upd_day=true; break
 done 
 
-if [[ "$is_update_day" == "true" || "$1" == "--force" ]]; then
+if [[ "$is_upd_day" == "true" || "$1" == "--force" ]]; then
     read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
 else
-    printf "%s %s %s\n" "${bad}" "Update days are set to:" "${update_days[*]}"
+    printf "%s %s %s\n" "${bad}" "Update days are set to:" "${upd_days[*]}"
     exit 1
 fi
 
-function _vet {
-    local cmd=("$@")
-    local cmd_str="${cmd[*]}"
-    local upd_msg
-    upd_msg=$(printf "%s %s\n" "Updating packages with:" "${cmd_str}")
+vet() {
+    local cmd=("$@") # @ leaves as args, * turns into string
 
-    echo "${ok} ${upd_msg}"
-    # This runs each argument passed to this function
-    "${cmd[@]}"
+    printf "%s %s\n" "Updating packages with:" "${cmd[*]}"
+    "${cmd[@]}" # Runs each argument passed to this function
 
-    # Error handling
     local exit_status=${?}
     if [[ ${exit_status} -ne 0 ]]; then
-        printf "%s %s %s\n" "${bad}" "${cmd_str}" "failed with exit status ${exit_status}."
+        printf "%s %s %s\n" "${bad}" "${cmd[*]}" "failed with exit status ${exit_status}."
         exit 1
     fi
 }
 
-# Main program
 case ${informed,,} in # ${var,,} converts the variable to lowercase
     "y"|"yup"|"yes") 
-        _vet paru -Syu
-        _vet flatpak update --user --assumeyes
-        _vet tldr --update
+        vet paru -Syu
+        vet flatpak update --user --assumeyes
+        vet tldr --update
         echo "${ok} Done! :D"
         exit 0
         ;;
@@ -50,6 +44,6 @@ case ${informed,,} in # ${var,,} converts the variable to lowercase
         echo "${warn} No packages were updated. Read the news!"
         echo "${warn} Fetching news..."
         paru -Pw
-        exit 0
+        exit 1
         ;;
 esac
