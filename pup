@@ -15,19 +15,19 @@ done
 if [[ "$is_upd_day" == "true" || "$1" == "--force" ]]; then
     read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
 else
-    printf "%s %s %s\n" "${bad}" "Update days are set to:" "${upd_days[*]}"
+    echo "${bad} Update days are set to: ${upd_days[*]}"
     exit 1
 fi
 
 vet() {
     local cmd=("$@") # @ leaves as args, * turns into string
 
-    printf "%s %s\n" "Updating packages with:" "${cmd[*]}"
+    echo "Updating packages with: ${cmd[*]}"
     "${cmd[@]}" # Runs each argument passed to this function
 
     local exit_status=${?}
     if [[ ${exit_status} -ne 0 ]]; then
-        printf "%s %s %s\n" "${bad}" "${cmd[*]}" "failed with exit status ${exit_status}."
+        echo "${bad} ${cmd[*]} failed with exit status ${exit_status}."
         exit 1
     fi
 }
