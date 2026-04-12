@@ -18,7 +18,7 @@ is_upd_day="false"
 if [[ "$is_upd_day" == "true" || "$1" == "--force" ]]; then
     read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
 else
-    echo "${bad} Update days are set to: ${upd_days[*]}"
+    echo "${bad} Update days are set to: ${!upd_days[*]}"
     exit 1
 fi
 
