@@ -4,7 +4,7 @@ ok=${ printf "\033[0;32m%b\033[0m" "pup:"; }
 warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 
-today="$(date +%A)"
+today="${ date +%A; }"
 update_days=("Friday" "Wednesday")
 is_update_day=false
 
