@@ -9,10 +9,7 @@ update_days=("Friday" "Wednesday")
 is_update_day=false
 
 for day in "${update_days[@]}"; do
-    if [[ "$today" == "$day" ]]; then
-        is_update_day=true
-        break
-    fi
+[[ "$today" == "$day" ]] && is_update_day=true; break
 done 
 
 if [[ "$is_update_day" == "true" || "$1" == "--force" ]]; then
