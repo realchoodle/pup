@@ -4,13 +4,16 @@ ok=${ printf "\033[0;32m%b\033[0m" "pup:"; }
 warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 
-today="${ date +%A; }"
-upd_days=("Friday" "Wednesday")
+# Looks insane but this is equivalent to 'date +%A'. The -1 asks for a current
+# date but to be honest I don't really understand that part. The main thing
+# is that %()T lets you put date formatting stuff between the parentheses.
+today="${ printf "%(%A)T" "-1"; }"
+declare -A upd_days
+upd_days=([Friday]=1 [Wednesday]=1)
 is_upd_day="false"
 
-for day in "${upd_days[@]}"; do
-[[ "$today" == "$day" ]] && is_upd_day=true; break
-done 
+# Undefined keys return empty strings 
+[[ -n "${upd_days[$today]}" ]] && is_upd_day="true"
 
 if [[ "$is_upd_day" == "true" || "$1" == "--force" ]]; then
     read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
