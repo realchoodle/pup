@@ -23,7 +23,12 @@ else
 fi
 
 vet() {
-    local cmd=("$@") # @ leaves as args, * turns into string
+    local cmd
+    cmd=("$@") # @ leaves as args, * turns into string
+
+    if ! command -v "${cmd[0]}" &> /dev/null; then
+        echo "${bad} ${cmd[0]} is not installed."
+    fi
 
     echo "Updating packages with: ${cmd[*]}"
     "${cmd[@]}" # Runs each argument passed to this function
@@ -41,8 +46,9 @@ case ${informed,,} in # ${var,,} converts the variable to lowercase
         vet flatpak update --user --assumeyes
         vet tldr --update
         echo "${ok} Done!"
-        [[ -n $(command -v notify-send) ]] \
-            && notify-send "pup" "Updates complete!"
+        if command -v notify-send &> /dev/null; then
+            notify-send "pup" "Updates complete!"
+        fi
         exit 0
         ;;
     *)
