@@ -9,7 +9,7 @@ bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 # is that %()T lets you put date formatting stuff between the parentheses.
 today="${ printf "%(%A)T" "-1"; }"
 declare -A upd_days
-upd_days=([Friday]=1 [Wednesday]=1)
+upd_days=([Friday]=1 [Wednesday]=1 [Thursday]=1)
 is_upd_day="false"
 
 # Undefined keys return empty strings 
