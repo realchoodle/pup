@@ -28,6 +28,7 @@ vet() {
 
     if ! command -v "${cmd[0]}" &> /dev/null; then
         echo "${bad} ${cmd[0]} is not installed."
+        exit 1
     fi
 
     echo "${ok} Updating packages with: ${cmd[*]}"
