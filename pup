@@ -41,21 +41,30 @@ vet() {
     fi
 }
 
+update() {
+    vet paru -Syu
+    vet flatpak update --user --assumeyes
+    vet tldr --update
+    echo "${ok} Done!"
+    if command -v notify-send &> /dev/null; then
+        notify-send "pup" "Updates complete!"
+    fi
+    exit 0
+}
+
 case ${informed,,} in # ${var,,} converts the variable to lowercase
     "y"|"yup"|"yes") 
-        vet paru -Syu
-        vet flatpak update --user --assumeyes
-        vet tldr --update
-        echo "${ok} Done!"
-        if command -v notify-send &> /dev/null; then
-            notify-send "pup" "Updates complete!"
-        fi
-        exit 0
+        update
         ;;
     *)
-        echo "${warn} No packages were updated. Read the news!"
+        echo "${warn} No packages were updated; read the news."
         echo "${warn} Fetching news..."
         paru -Pw
-        exit 1
+
+        read -rp "${warn} Things look okay? [y/N] " checkup 
+        case ${checkup,,} in
+            "y"|"yup"|"yes") echo "${ok} Starting updates!"; update ;;
+            *) echo "${ok} No packages were updated."; exit 0 ;;
+        esac
         ;;
 esac
