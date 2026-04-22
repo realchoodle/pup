@@ -45,6 +45,7 @@ update() {
     vet paru -Syu
     vet flatpak update --user --assumeyes
     vet tldr --update
+    vet rustup update
     echo "${ok} Done!"
     if command -v notify-send &> /dev/null; then
         notify-send "pup" "Updates complete!"
