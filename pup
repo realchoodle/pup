@@ -1,42 +1,43 @@
 #!/usr/bin/env bash
 
+declare -A upd_days
+
 ok=${ printf "\033[0;32m%b\033[0m" "pup:"; }
 warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
 
-# Looks insane but this is equivalent to 'date +%A'. The -1 asks for a current
-# date but to be honest I don't really understand that part. The main thing
-# is that %()T lets you put date formatting stuff between the parentheses.
+# The -1 asks for a current date
 today="${ printf "%(%A)T" "-1"; }"
-declare -A upd_days
-upd_days=([Friday]=1 [Wednesday]=1 [Thursday]=1)
+upd_days=([Wednesday]=1 [Thursday]=1 [Friday]=1)
 is_upd_day="false"
 
 # Undefined keys return empty strings 
 [[ -n "${upd_days[$today]}" ]] && is_upd_day="true"
 
 if [[ "$is_upd_day" == "true" || "$1" == "--force" ]]; then
-    read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
+    read -rp "$ok Have you checked for problematic updates? [y/N] " informed
 else
-    echo "${bad} Update days are set to: ${!upd_days[*]}"
+    echo "$bad Update days are set to: ${!upd_days[*]}"
     exit 1
 fi
 
 vet() {
-    local cmd
-    cmd=("$@") # @ leaves as args, * turns into string
+    local exit_status
+    local -a cmd
 
-    if ! command -v "${cmd[0]}" &> /dev/null; then
-        echo "${bad} ${cmd[0]} is not installed."
+    cmd=("$@")
+
+    if ! command -v "${cmd[0]}" > /dev/null 2>&1; then
+        echo "$bad ${cmd[0]} is not installed."
         exit 1
     fi
 
-    echo "${ok} Updating packages with: ${cmd[*]}"
-    "${cmd[@]}" # Runs each argument passed to this function
+    echo "$ok Updating packages with: ${cmd[*]}"
+    "${cmd[@]}"
 
-    local exit_status="${?}"
-    if [[ ${exit_status} -ne 0 ]]; then
-        echo "${bad} ${cmd[*]} failed with exit status ${exit_status}."
+    exit_status="$?"
+    if [[ $exit_status -ne 0 ]]; then
+        echo "$bad ${cmd[*]} failed with exit status $exit_status."
         exit 1
     fi
 }
@@ -46,26 +47,24 @@ update() {
     vet flatpak update --user --assumeyes
     vet tldr --update
     vet rustup update
-    echo "${ok} Done!"
-    if command -v notify-send &> /dev/null; then
+    echo "$ok Done!"
+    if command -v notify-send > /dev/null 2>&1; then
         notify-send "pup" "Updates complete!"
     fi
     exit 0
 }
 
 case ${informed,,} in # ${var,,} converts the variable to lowercase
-    "y"|"yup"|"yes") 
-        update
-        ;;
+    "y"|"yes") 
+        update ;;
     *)
-        echo "${warn} No packages were updated; read the news."
-        echo "${warn} Fetching news..."
+        echo "$warn No packages were updated; read the news."
+        echo "$warn Fetching news..."
         paru -Pw
+        read -rp "$warn Things look okay? [y/N] " checkup 
 
-        read -rp "${warn} Things look okay? [y/N] " checkup 
         case ${checkup,,} in
-            "y"|"yup"|"yes") echo "${ok} Starting updates!"; update ;;
-            *) echo "${ok} No packages were updated."; exit 0 ;;
-        esac
-        ;;
+            "y"|"yes") echo "$ok Starting updates!"; update ;;
+            *) echo "$ok No packages were updated."; exit 0 ;;
+        esac ;;
 esac
