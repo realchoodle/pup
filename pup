@@ -68,5 +68,6 @@ case ${informed,,} in
             "y"|"yes") echo "$ok Starting updates!"; update ;;
             *) echo "$ok No packages were updated."; exit 0 ;;
         esac
+
         ;;
 esac
