@@ -54,7 +54,8 @@ update() {
     exit 0
 }
 
-case ${informed,,} in # ${var,,} converts the variable to lowercase
+# ${var,,} converts the variable to lowercase
+case ${informed,,} in 
     "y"|"yes") 
         update ;;
     *)
