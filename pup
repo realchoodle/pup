@@ -7,7 +7,6 @@ today="${ printf "%(%A)T" "-1"; }"
 ok=${ printf "\033[0;32m%b\033[0m" "pup:"; }
 warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
-news_cmd="paru -Pw"
 
 # Undefined keys return empty strings 
 if [[ -n "${upd_days[$today]}" ]]; then
@@ -16,6 +15,10 @@ else
     echo "$bad Update days are set to: ${!upd_days[*]}"
     exit 1
 fi
+
+news() {
+    paru -Pw
+}
 
 vet() {
     local exit_status
@@ -57,7 +60,7 @@ case ${informed,,} in
     *)
         echo "$warn No packages were updated; read the news."
         echo "$warn Fetching news..."
-        "$news_cmd"
+        news
         read -rp "$warn Things look okay? [y/N] " checkup 
 
         # Nested cases are ugly
