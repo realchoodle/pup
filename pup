@@ -1,20 +1,16 @@
 #!/usr/bin/env bash
 
 declare -A upd_days
+upd_days=([Wednesday]=1 [Friday]=1)
+today="${ printf "%(%A)T" "-1"; }"
 
 ok=${ printf "\033[0;32m%b\033[0m" "pup:"; }
 warn=${ printf "\033[0;33m%b\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%b\033[0m" "pup:"; }
-
-# The -1 asks for a current date
-today="${ printf "%(%A)T" "-1"; }"
-upd_days=([Wednesday]=1 [Thursday]=1 [Friday]=1)
-is_upd_day="false"
+news_cmd="paru -Pw"
 
 # Undefined keys return empty strings 
-[[ -n "${upd_days[$today]}" ]] && is_upd_day="true"
-
-if [[ "$is_upd_day" == "true" || "$1" == "--force" ]]; then
+if [[ -n "${upd_days[$today]}" ]]; then
     read -rp "$ok Have you checked for problematic updates? [y/N] " informed
 else
     echo "$bad Update days are set to: ${!upd_days[*]}"
@@ -24,7 +20,6 @@ fi
 vet() {
     local exit_status
     local -a cmd
-
     cmd=("$@")
 
     if ! command -v "${cmd[0]}" > /dev/null 2>&1; then
@@ -34,9 +29,9 @@ vet() {
 
     echo "$ok Updating packages with: ${cmd[*]}"
     "${cmd[@]}"
-
     exit_status="$?"
-    if [[ $exit_status -ne 0 ]]; then
+
+    if (( $exit_status != 0 )); then
         echo "$bad ${cmd[*]} failed with exit status $exit_status."
         exit 1
     fi
@@ -48,26 +43,30 @@ update() {
     vet tldr --update
     vet rustup update
     echo "$ok Done!"
+
     if command -v notify-send > /dev/null 2>&1; then
         notify-send "pup" "Updates complete!"
     fi
     exit 0
 }
 
-# ${var,,} converts the variable to lowercase
 case ${informed,,} in 
     "y"|"yes") 
-        update ;;
+        update
+        ;;
     *)
         echo "$warn No packages were updated; read the news."
         echo "$warn Fetching news..."
-        paru -Pw
+        "$news_cmd"
         read -rp "$warn Things look okay? [y/N] " checkup 
 
-        case ${checkup,,} in
-            "y"|"yes") echo "$ok Starting updates!"; update ;;
-            *) echo "$ok No packages were updated."; exit 0 ;;
-        esac
-
+        # Nested cases are ugly
+        if [[ "${checkup,,}" == "y" || "${checkup,,}" == "yes" ]]; then
+            echo "$ok Starting updates!"
+            update
+        else
+            echo "$ok No packages were updated."
+            exit 0
+        fi
         ;;
 esac
