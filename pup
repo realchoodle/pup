@@ -10,8 +10,7 @@ bad=${ printf "\033[0;31m%s\033[0m" "pup:"; }
 
 # Undefined keys return empty strings 
 if [[ -n "${upd_days[${today}]}" ]]
-then
-    read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
+then read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
 else
     echo "${bad} Update days are set to: ${!upd_days[*]}"
     exit 1
@@ -53,11 +52,10 @@ update() {
     echo "${ok} Done!"
 
     if command -v notify-send > /dev/null 2>&1
-    then
-        notify-send \
-            --app-name="pup" \
-            "pup" \
-            "Updates complete."
+    then notify-send \
+        --app-name="pup" \
+        "pup" \
+        "Updates complete."
     fi
 
     exit 0
