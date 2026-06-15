@@ -1,83 +1,51 @@
 #!/usr/bin/env bash
 
-declare -A upd_days
-upd_days=([Wednesday]=1 [Friday]=1)
-today="${ printf "%(%A)T" "-1"; }"
+declare bad ok
 
-ok=${ printf "\033[0;32m%s\033[0m" "pup:"; }
-warn=${ printf "\033[0;33m%s\033[0m" "pup:"; }
 bad=${ printf "\033[0;31m%s\033[0m" "pup:"; }
-
-# Undefined keys return empty strings 
-if [[ -n "${upd_days[${today}]}" ]]
-then read -rp "${ok} Have you checked for problematic updates? [y/N] " informed
-else
-    echo "${bad} Update days are set to: ${!upd_days[*]}"
-    exit 1
-fi
-
-get_news() {
-    paru -Pw
-}
+ok=${ printf "\033[0;32m%s\033[0m" "pup:"; }
 
 run_and_check() {
-    local exit_status
+    local -i exit_status
     local -a cmd
     cmd=("$@")
 
     if ! command -v "${cmd[0]}" > /dev/null 2>&1
     then
-        echo "${bad} ${cmd[0]} is not installed."
+        echo "$bad '${cmd[0]}' is not installed."
         exit 1
-    fi
+    else
+        echo -e "\n${ok} Updating packages with: '${cmd[*]}'"
 
-    echo -e "\n${ok} Updating packages with: ${cmd[*]}"
-    "${cmd[@]}"
-    exit_status="$?"
+        "${cmd[@]}"
+        exit_status="$?"
+        pkill -SIGRTMIN+1 i3status-rs # for my status bar
 
-    pkill -SIGRTMIN+1 i3status-rs # for my status bar
-
-    if (( exit_status ))
-    then
-        echo "${bad} ${cmd[*]} failed with exit status ${exit_status}."
-        exit 1
-    fi
-}
-
-update() {
-    run_and_check paru --sync --refresh --sysupgrade
-    run_and_check flatpak update --user --assumeyes
-    run_and_check tldr --update
-    run_and_check rustup update
-    echo "${ok} Done!"
-
-    if command -v notify-send > /dev/null 2>&1
-    then notify-send \
-        --app-name="pup" \
-        "pup" \
-        "Updates complete."
-    fi
-
-    exit 0
-}
-
-case ${informed,,} in 
-    "y"|"yes") 
-        update
-        ;;
-    *)
-        echo "${warn} No packages were updated; read the news!"
-        echo "${warn} Fetching news..."
-        get_news
-        read -rp "${warn} Things look okay? [y/N] " response 
-
-        # Nested cases are ugly
-        if [[ "${response,,}" == "y" || "${response,,}" == "yes" ]]
+        if (( exit_status != 0 ))
         then
-            echo "${ok} Starting updates."
-            update
-        else
-            echo "${ok} No packages were updated."
-            exit 0
+            echo "$bad ${cmd[*]} failed with exit status ${exit_status}."
+            exit 1
         fi
-esac
+    fi
+}
+
+declare -a update_cmds
+update_cmds=(
+    paru --sync --refresh --sysupgrade
+    flatpak update --user --assumeyes
+    tldr --update
+    rustup update
+)
+
+for cmd in "${update_cmds[@]}"
+do
+    run_and_check "$cmd"
+done
+
+echo "${ok} Done!"
+if command -v notify-send > /dev/null 2>&1
+then notify-send \
+    --app-name="pup" \
+    "pup" \
+    "Updates complete."
+fi
