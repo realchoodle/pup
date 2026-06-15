@@ -8,7 +8,7 @@ ok=${ printf "\033[0;32m%s\033[0m" "pup:"; }
 run_and_check() {
     local -i exit_status
     local -a cmd
-    cmd=("$@")
+    cmd=("${@}")
 
     if ! command -v "${cmd[0]}" > /dev/null 2>&1
     then
@@ -32,15 +32,16 @@ run_and_check() {
 
 declare -a update_cmds
 update_cmds=(
-    paru --sync --refresh --sysupgrade
-    flatpak update --user --assumeyes
-    tldr --update
-    rustup update
+    "paru --sync --refresh --sysupgrade"
+    "flatpak update --user --assumeyes"
+    "tldr --update"
+    "rustup update"
 )
 
 for update_cmd in "${update_cmds[@]}"
 do
-    run_and_check "${update_cmd}"
+    # No quoting; run_and_check() takes advantage of splitting
+    run_and_check ${update_cmd}
 done
 
 echo "${ok} Done!"
