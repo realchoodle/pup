@@ -27,7 +27,7 @@ run_and_check() {
 
         if (( status == 0 ))
         then
-            # For my status bar
+            # TODO: Handle signals through config file and flags
             pkill -SIGRTMIN+1 i3status-rs
         else
             echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${status})" >&2
