@@ -31,7 +31,7 @@ run_and_check() {
         if (( status == 0 ))
         then
             # TODO: Handle signals through config file and flags
-            pkill -SIGRTMIN+1 i3status-rs
+            pkill -SIGRTMIN+1 i3status-rs 2>/dev/null || true
         else
             echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${status})" >&2
             exit 1
