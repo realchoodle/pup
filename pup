@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-declare red green reset
-red=${ tput setaf 9; }
-green=${ tput setaf 10; }
-reset=${ tput sgr0; }
+declare res red grn ylw
+res="${ tput sgr0; }"
+red="${ tput setaf 9; }"
+grn="${ tput setaf 10; }"
+ylw="${ tput setaf 11; }"
 
 declare bad ok
-bad=${ printf "${red}%s${reset}" "pup:"; }
-ok=${ printf "${green}%s${reset}" "pup:"; }
+bad="${ printf "${red}%s${res}" "pup:"; }"
+ok="${ printf "${grn}%s${res}" "pup:"; }"
 
 run_and_check() {
     local -a cmd
@@ -15,20 +16,20 @@ run_and_check() {
 
     if ! command -v "${cmd[0]}" > /dev/null 2>&1
     then
-        echo "${bad} '${cmd[0]}' is not installed!" >&2
+        echo "${bad} ${ylw}'${cmd[0]}'${res} is not installed!" >&2
         exit 1
     else
-        echo "${ok} Running '${cmd[*]}'..."
+        echo "${ok} Running ${ylw}'${cmd[*]}'${res}..."
 
-        local -i exit_status
+        local -i status
         "${cmd[@]}"
-        exit_status="$?"
+        status="$?"
 
-        if (( exit_status == 0 ))
+        if (( status == 0 ))
         then
             pkill -SIGRTMIN+1 i3status-rs # for my status bar
         else
-            echo "${bad} ${cmd[*]} failed with exit status ${exit_status}!" >&2
+            echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${status})" >&2
             exit 1
         fi
     fi
