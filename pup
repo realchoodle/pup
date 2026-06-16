@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
 
-declare bad ok
+declare red green reset
+red=${ tput setaf 9; }
+green=${ tput setaf 10; }
+reset=${ tput sgr0; }
 
-bad=${ printf "\033[0;31m%s\033[0m" "pup:"; }
-ok=${ printf "\033[0;32m%s\033[0m" "pup:"; }
+declare bad ok
+bad=${ printf "${red}%s${reset}" "pup:"; }
+ok=${ printf "${green}%s${reset}" "pup:"; }
 
 run_and_check() {
-    local -i exit_status
     local -a cmd
     cmd=("${@}")
 
     if ! command -v "${cmd[0]}" > /dev/null 2>&1
     then
-        echo "${bad} '${cmd[0]}' is not installed."
+        echo "${bad} '${cmd[0]}' is not installed!" >&2
         exit 1
     else
-        echo -e "\n${ok} Updating packages with: '${cmd[*]}'"
+        echo "${ok} Running '${cmd[*]}'..."
 
+        local -i exit_status
         "${cmd[@]}"
         exit_status="$?"
 
@@ -24,7 +28,7 @@ run_and_check() {
         then
             pkill -SIGRTMIN+1 i3status-rs # for my status bar
         else
-            echo "${bad} ${cmd[*]} failed with exit status ${exit_status}."
+            echo "${bad} ${cmd[*]} failed with exit status ${exit_status}!" >&2
             exit 1
         fi
     fi
@@ -42,9 +46,10 @@ for update_cmd in "${update_cmds[@]}"
 do
     # No quoting; run_and_check() takes advantage of splitting
     run_and_check ${update_cmd}
+    echo
 done
 
-echo "${ok} Done!"
+echo "${ok} Done."
 
 if command -v notify-send > /dev/null 2>&1
 then
