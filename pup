@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+declare name
+name="pup"
+
 declare res red grn ylw
 res="${ tput sgr0; }"
 red="${ tput setaf 9; }"
@@ -7,8 +10,8 @@ grn="${ tput setaf 10; }"
 ylw="${ tput setaf 11; }"
 
 declare bad ok
-bad="${ printf "${red}%s${res}" "pup:"; }"
-ok="${ printf "${grn}%s${res}" "pup:"; }"
+bad="${ printf "${red}%s${res}" "${name}:"; }"
+ok="${ printf "${grn}%s${res}" "${name}:"; }"
 
 run_and_check() {
     local -a cmd
@@ -57,5 +60,9 @@ echo "${ok} Done."
 
 if command -v notify-send > /dev/null 2>&1
 then
-    notify-send --app-name="pup" "pup" "Updates complete."
+    notify-send \
+        --app-name="${name}" \
+        --urgency="normal" \
+        "${name}" \
+        "Updates complete."
 fi
