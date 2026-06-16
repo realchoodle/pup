@@ -46,6 +46,7 @@ update_cmds=(
 for update_cmd in "${update_cmds[@]}"
 do
     # No quoting; run_and_check() takes advantage of splitting
+    # shellcheck disable=SC2086
     run_and_check ${update_cmd}
     echo
 done
