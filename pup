@@ -27,7 +27,8 @@ run_and_check() {
 
         if (( status == 0 ))
         then
-            pkill -SIGRTMIN+1 i3status-rs # for my status bar
+            # For my status bar
+            pkill -SIGRTMIN+1 i3status-rs
         else
             echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${status})" >&2
             exit 1
@@ -35,6 +36,7 @@ run_and_check() {
     fi
 }
 
+# TODO: Handle update commands through config file and flags
 declare -a update_cmds
 update_cmds=(
     "paru --sync --refresh --sysupgrade"
