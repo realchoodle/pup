@@ -26,7 +26,7 @@ run_and_check() {
 		"${cmd[@]}"
 		code="$?"
 
-		if (( code ))
+		if (( code == 0 ))
 		then
 			pkill -SIGRTMIN+1 i3status-rs 2>/dev/null || true
 		else
