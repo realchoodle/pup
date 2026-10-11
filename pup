@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 name="${0##*/}"
-res=$'\E(B\E[m'
+re=$'\E(B\E[m'
 red=$'\E[31m'
 grn=$'\E[32m'
 ylw=$'\E[33m'
-bld=$'\E[1m'
+bl=$'\E[1m'
 it=$'\E[3m'
 
-bad="${ printf "%s" "${bld}${red}${name}:${res}"; }"
-ok="${  printf "%s" "${bld}${grn}${name}:${res}"; }"
+bad="${ printf "%s" "${bl}${red}${name}:${re}"; }"
+ok="${  printf "%s" "${bl}${grn}${name}:${re}"; }"
 
 run_and_check() {
 	local -a cmd
@@ -17,26 +17,25 @@ run_and_check() {
 
 	if ! command -v "${cmd[0]}" > /dev/null 2>&1
 	then
-		echo "${bad} ${it}${cmd[0]}${it} is not installed!" >&2
+		echo "$bad ${it}${cmd[0]}${re} is not installed!" >&2
 		exit 1
 	else
-		echo "${ok} Running ${it}${cmd[*]}${it}"
+		echo "$ok Running ${it}${cmd[*]}${re}"
 
 		local -i code
 		"${cmd[@]}"
 		code="$?"
 
-		if (( code == 0 ))
+		if (( code ))
 		then
 			pkill -SIGRTMIN+1 i3status-rs 2>/dev/null || true
 		else
-			echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${code})" >&2
-			exit "${code}"
+			echo "$bad ${it}${cmd[*]}${re} failed! (exit $code)" >&2
+			exit "$code"
 		fi
 	fi
 }
 
-# TODO: Handle update commands through config file and flags
 declare -a update_cmds
 update_cmds=(
 	"paru --sync --refresh --sysupgrade --newsonupgrade"
