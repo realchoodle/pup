@@ -1,68 +1,55 @@
 #!/usr/bin/env bash
 
-declare name
-name="pup"
+name="${0##*/}"
+res=$'\E(B\E[m'
+red=$'\E[31m'
+grn=$'\E[32m'
+ylw=$'\E[33m'
+bld=$'\E[1m'
+it=$'\E[3m'
 
-declare res red grn ylw
-res="${ tput sgr0; }"
-red="${ tput setaf 9; }"
-grn="${ tput setaf 10; }"
-ylw="${ tput setaf 11; }"
-
-declare bad ok
-bad="${ printf "${red}%s${res}" "${name}:"; }"
-ok="${ printf "${grn}%s${res}" "${name}:"; }"
+bad="${ printf "%s" "${bld}${red}${name}:${res}"; }"
+ok="${  printf "%s" "${bld}${grn}${name}:${res}"; }"
 
 run_and_check() {
-    local -a cmd
-    cmd=("${@}")
+	local -a cmd
+	cmd=("${@}")
 
-    if ! command -v "${cmd[0]}" > /dev/null 2>&1
-    then
-        echo "${bad} ${ylw}'${cmd[0]}'${res} is not installed!" >&2
-        exit 1
-    else
-        echo "${ok} Running ${ylw}'${cmd[*]}'${res}..."
+	if ! command -v "${cmd[0]}" > /dev/null 2>&1
+	then
+		echo "${bad} ${it}${cmd[0]}${it} is not installed!" >&2
+		exit 1
+	else
+		echo "${ok} Running ${it}${cmd[*]}${it}"
 
-        local -i status
-        "${cmd[@]}"
-        status="$?"
+		local -i code
+		"${cmd[@]}"
+		code="$?"
 
-        if (( status == 0 ))
-        then
-            # TODO: Handle signals through config file and flags
-            pkill -SIGRTMIN+1 i3status-rs 2>/dev/null || true
-        else
-            echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${status})" >&2
-            exit 1
-        fi
-    fi
+		if (( code == 0 ))
+		then
+			pkill -SIGRTMIN+1 i3status-rs 2>/dev/null || true
+		else
+			echo "${bad} ${ylw}'${cmd[*]}'${res} failed! (exit ${code})" >&2
+			exit "${code}"
+		fi
+	fi
 }
 
 # TODO: Handle update commands through config file and flags
 declare -a update_cmds
 update_cmds=(
-    "paru --sync --refresh --sysupgrade"
-    "flatpak update --user --assumeyes"
-    "tldr --update"
-    "rustup update"
+	"paru --sync --refresh --sysupgrade --newsonupgrade"
+	"flatpak update --user --assumeyes"
+	"tldr --update"
+	"rustup update"
+	"ollup"
+	"fup"
 )
 
 for update_cmd in "${update_cmds[@]}"
 do
-    # No quoting; run_and_check() takes advantage of splitting
-    # shellcheck disable=SC2086
-    run_and_check ${update_cmd}
-    echo
+	# shellcheck disable=SC2086
+	run_and_check ${update_cmd}
+	echo
 done
-
-echo "${ok} Done."
-
-if command -v notify-send > /dev/null 2>&1
-then
-    notify-send \
-        --app-name="${name}" \
-        --urgency="normal" \
-        "${name}" \
-        "Updates complete."
-fi
